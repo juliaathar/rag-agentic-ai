@@ -1,23 +1,31 @@
 import getpass
 import os
 from dotenv import load_dotenv
+from langchain.chat_models import init_chat_model
+from pdf_loader import load_pdf_and_transform_to_chunks
+from embeddings import transform_chunks_to_vectors
+from chat import agentic_rag
 
 load_dotenv()
 
 google_api_key = os.environ["GOOGLE_API_KEY"]
 
-from langchain.chat_models import init_chat_model
-from langchain_core.prompts import PromptTemplate
-from langchain_core.messages import HumanMessage
+llm = init_chat_model("gemini-2.5-flash", model_provider="google_genai", temperature=0.7)
 
-llm = init_chat_model("gemini-2.5-flash", model_provider="google_genai")
+chunks = load_pdf_and_transform_to_chunks()
 
-template = PromptTemplate.from_template(
-  'Hi, my name is {name}! Tell me a joke about machine learning'
-)
+vector_store = transform_chunks_to_vectors(chunks=chunks)
 
-text = template.format(name='Júlia')
+question = "Qual a quantidade máxima de dias que posso tirar de férias?"
 
-response = llm.invoke(text)
+question_1 = "Posso dividir minhas férias?"
 
-print(response.content)
+question_2 = "Posso pedir férias sem ter completado um ano na empresa?"
+
+question_3 = "Preciso avisar com quantos dias de antecedência?"
+
+answer = agentic_rag(llm=llm, vector_store=vector_store, question=question_2)
+
+print("\n")
+print(answer)
+print("\n")

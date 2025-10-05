@@ -1,18 +1,20 @@
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-loader = PyPDFLoader(
-    file_path='./data/politica_de_ferias.pdf',
-    mode='single'
-)
+def load_pdf_and_transform_to_chunks ():
+    
+    loader = PyPDFLoader(
+        file_path='./data/politica_de_ferias.pdf',
+        mode='single'
+    )
+    
+    docs = loader.load()
 
-docs = loader.load()
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=500,
+        chunk_overlap=50,
+    )
 
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=500,
-    chunk_overlap=50,
-)
+    chunks = text_splitter.split_documents(docs)
 
-chunks = text_splitter.split_documents(docs)
-
-print(len(chunks))
+    return chunks
